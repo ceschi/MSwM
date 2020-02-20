@@ -691,22 +691,24 @@ setMethod(f="plot",signature=c("MSM.linear","missing"),definition=.MSM.plot)
 		len_out <- min(floor(length(t(z))/10), 11)
 		
 		if (x_labels == NULL){
-    		  apply(as.matrix(1:length(aux)),1,function(i){
-    		    a=layout(matrix(c(1,1,1,2),ncol=1,nrow=4),TRUE)
-    		    y=x["Fit"]["smoProb"][-1,aux[i]]
-    		    par(omi=c(0.1,0.1,0.1,0.5))
-    		    par(las=1,yaxt="n")
-    		    plot(0,type="l",xlim=c(1,length(t(z))),ylim=c(min(z),max(z)),main=paste("Regime",aux[i]),xlab=paste(names(z),"vs. Smooth Probabilities"),ylab="")
-    		    val=cbind(which(diff(c(0,findInterval(y,0.5)))==1),which(diff(c(findInterval(y,0.5),0))==-1))
-    		    apply(val,1,function(el) rect(el[1],min(z),el[2],max(z),col="light grey",border=NA))
-    		    par(new=T,las=1,bty="o",yaxt="n")			
-    		    plot(ts(z),col=1,ylim=c(min(z),max(z)),xlab="",ylab="")
-    		    par(las=3,yaxt="s")
-    		    mtext(names(z),side=2,line=2.5,col=1)
-    		    axis(side=4)
-    		    barplot(x["Fit"]["smoProb"][-1,aux[i]],ylim=c(0,1))
-    		    	)
-    			}
+    		  apply(as.matrix(1:length(aux)),1,
+    		  	function(i){
+	    		    a=layout(matrix(c(1,1,1,2),ncol=1,nrow=4),TRUE)
+	    		    y=x["Fit"]["smoProb"][-1,aux[i]]
+	    		    par(omi=c(0.1,0.1,0.1,0.5))
+	    		    par(las=1,yaxt="n")
+	    		    plot(0,type="l",xlim=c(1,length(t(z))),ylim=c(min(z),max(z)),main=paste("Regime",aux[i]),xlab=paste(names(z),"vs. Smooth Probabilities"),ylab="")
+	    		    val=cbind(which(diff(c(0,findInterval(y,0.5)))==1),which(diff(c(findInterval(y,0.5),0))==-1))
+	    		    apply(val,1,function(el) rect(el[1],min(z),el[2],max(z),col="light grey",border=NA))
+	    		    par(new=T,las=1,bty="o",yaxt="n")			
+	    		    plot(ts(z),col=1,ylim=c(min(z),max(z)),xlab="",ylab="")
+	    		    par(las=3,yaxt="s")
+	    		    mtext(names(z),side=2,line=2.5,col=1)
+	    		    axis(side=4)
+	    		    barplot(x["Fit"]["smoProb"][-1,aux[i]],ylim=c(0,1))
+    		    	
+    				}
+    			)
 		    }else{		    
 		      apply(as.matrix(1:length(aux)),1,function(i){
 		        ### set layout for multiple plots in the same device
