@@ -613,6 +613,8 @@ setMethod(f="plot",signature=c("MSM.linear","missing"),definition=.MSM.plot)
 ##### plotProb
 
 .MSM.plotProb=function(x,which){
+  
+  # check consistency of inputs + stops
 	if(missing(which)){
 		which=1:(x["k"]+1)
 	}else{
@@ -622,6 +624,8 @@ setMethod(f="plot",signature=c("MSM.linear","missing"),definition=.MSM.plot)
 			stop("You must write numbers.")
 		}
 	}
+  
+  ### device settings mods
   oldpar=par()
 	a=ceiling(x["k"]/3)
 	aux1=1:a
@@ -636,8 +640,13 @@ setMethod(f="plot",signature=c("MSM.linear","missing"),definition=.MSM.plot)
 	)
 	aux2[1,1]=T
 	cont=1
-	if(any(which==1)){	
-		for (i in 1:x["k"]){		
+	
+	### real plots:
+	if(any(which==1)){
+
+	  ### loop over the states to plot them
+	  ### but first make adjustments on the device
+		for (i in 1:x["k"]){
 			if(aux2[i,1]){
 				if(i>1){
 					if(cont<length(aux1)){
@@ -659,6 +668,8 @@ setMethod(f="plot",signature=c("MSM.linear","missing"),definition=.MSM.plot)
 					cont=cont+1
 				}
 			}
+
+		  ### actual plot, i-th time series
 			plot(x["Fit"]["filtProb"][,i],main=paste("Regime",i),ylim=c(0,1),xlab="",ylab="",type="h")
 			lines(x["Fit"]["smoProb"][-1,i],col=2)
 			par(las=3)
@@ -666,26 +677,74 @@ setMethod(f="plot",signature=c("MSM.linear","missing"),definition=.MSM.plot)
 			mtext("Filtered Probabilities",side=4,line=2.5)
 		}
 	}
+
 	
-	if(any(which>1)){	
+	### plots 2 to 3
+	if(any(which>1)){
 		aux=which[which>1]-1
-		z=x["model"]$model[1]	
-		apply(as.matrix(1:length(aux)),1,function(i){
-				a=layout(matrix(c(1,1,1,2),ncol=1,nrow=4),TRUE)
-				y=x["Fit"]["smoProb"][-1,aux[i]]
-				par(omi=c(0.1,0.1,0.1,0.5))
-				par(las=1,yaxt="n")
-				plot(0,type="l",xlim=c(1,length(t(z))),ylim=c(min(z),max(z)),main=paste("Regime",aux[i]),xlab=paste(names(z),"vs. Smooth Probabilities"),ylab="")
-				val=cbind(which(diff(c(0,findInterval(y,0.5)))==1),which(diff(c(findInterval(y,0.5),0))==-1))
-				apply(val,1,function(el) rect(el[1],min(z),el[2],max(z),col="light grey",border=NA))
-				par(new=T,las=1,bty="o",yaxt="n")			
-				plot(ts(z),col=1,ylim=c(min(z),max(z)),xlab="",ylab="")
-				par(las=3,yaxt="s")
-				mtext(names(z),side=2,line=2.5,col=1)
-				axis(side=4)
-				barplot(x["Fit"]["smoProb"][-1,aux[i]],ylim=c(0,1))	
+		
+		### z is a df storing 
+		z=x["model"]$model[1]
+		
+		###### store 
+		x_labels <- rownames(z)
+		len_out <- min(floor(length(t(z))/10), 11)
+		
+		if (x_labels == NULL){
+    		  apply(as.matrix(1:length(aux)),1,function(i){
+    		    a=layout(matrix(c(1,1,1,2),ncol=1,nrow=4),TRUE)
+    		    y=x["Fit"]["smoProb"][-1,aux[i]]
+    		    par(omi=c(0.1,0.1,0.1,0.5))
+    		    par(las=1,yaxt="n")
+    		    plot(0,type="l",xlim=c(1,length(t(z))),ylim=c(min(z),max(z)),main=paste("Regime",aux[i]),xlab=paste(names(z),"vs. Smooth Probabilities"),ylab="")
+    		    val=cbind(which(diff(c(0,findInterval(y,0.5)))==1),which(diff(c(findInterval(y,0.5),0))==-1))
+    		    apply(val,1,function(el) rect(el[1],min(z),el[2],max(z),col="light grey",border=NA))
+    		    par(new=T,las=1,bty="o",yaxt="n")			
+    		    plot(ts(z),col=1,ylim=c(min(z),max(z)),xlab="",ylab="")
+    		    par(las=3,yaxt="s")
+    		    mtext(names(z),side=2,line=2.5,col=1)
+    		    axis(side=4)
+    		    barplot(x["Fit"]["smoProb"][-1,aux[i]],ylim=c(0,1))
+
+		    } else {
+		    
+		      apply(as.matrix(1:length(aux)),1,function(i){
+		        ### set layout for multiple plots in the same device
+		        a=layout(matrix(c(1,1,1,2),ncol=1,nrow=4),TRUE)
+		        ### store smoothed probs, skip first row (initialisation?)
+		        y=x["Fit"]["smoProb"][-1,aux[i]]
+		        ### custom settings for device
+		        par(omi=c(0.1,0.1,0.1,0.5))
+		        par(las=1,yaxt="n")
+		        ### empty plot with main var box
+		        plot(0,
+		             type="l",
+		             xlim=c(1,length(t(z))),
+		             ylim=c(min(z),max(z)),
+		             main=paste("Regime",aux[i]),
+		             xlab=paste(names(z),"vs. Smooth Probabilities"),
+		             ylab="", xaxt = 'n')
+		        ### find and store index values for shaded areas in the plot
+		        val=cbind(which(diff(c(0,findInterval(y,0.5)))==1),
+		                  which(diff(c(findInterval(y,0.5),0))==-1)
+		                  )
+		        ### add shaded areas, rect draws rectangles in a plot
+		        apply(val,1,function(el) rect(el[1],min(z),el[2],max(z),col="light grey",border=NA))
+		        ### plot the data in the upper box
+		        par(new=T,las=1,bty="o",yaxt="n")
+		        plot(ts(z),col=1,ylim=c(min(z),max(z)),xlab="",ylab="", xaxt="n")
+		        ### here goes the labelling
+		        axis(side = 1, at = seq(from = 1, to = length(x_labels),length.out = len_out),labels=x_labels[seq(from = 1,to = length(x_labels),length.out = len_out)])
+		        par(las=3,yaxt="s")
+		        mtext(names(z),side=2,line=2.5,col=1)
+		        axis(side=4)
+		        barplot(x["Fit"]["smoProb"][-1,aux[i]],ylim=c(0,1))
+		        # below, options for the dates on barplot
+		        #, names.arg = x_labels, cex.names = .2)
+		        
+		        }
+		      )
 			}
-		)
 	}
   par(mfrow=c(1,1))
 	return(invisible())
