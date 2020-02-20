@@ -706,7 +706,7 @@ setMethod(f="plot",signature=c("MSM.linear","missing"),definition=.MSM.plot)
     		    axis(side=4)
     		    barplot(x["Fit"]["smoProb"][-1,aux[i]],ylim=c(0,1))
 
-		    } else {
+		    }else{
 		    
 		      apply(as.matrix(1:length(aux)),1,function(i){
 		        ### set layout for multiple plots in the same device
