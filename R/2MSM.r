@@ -705,9 +705,9 @@ setMethod(f="plot",signature=c("MSM.linear","missing"),definition=.MSM.plot)
     		    mtext(names(z),side=2,line=2.5,col=1)
     		    axis(side=4)
     		    barplot(x["Fit"]["smoProb"][-1,aux[i]],ylim=c(0,1))
-
-		    }else{
-		    
+    		    	)
+    			}
+		    }else{		    
 		      apply(as.matrix(1:length(aux)),1,function(i){
 		        ### set layout for multiple plots in the same device
 		        a=layout(matrix(c(1,1,1,2),ncol=1,nrow=4),TRUE)
@@ -742,9 +742,8 @@ setMethod(f="plot",signature=c("MSM.linear","missing"),definition=.MSM.plot)
 		        # below, options for the dates on barplot
 		        #, names.arg = x_labels, cex.names = .2)
 		        
-		        }
-		      )
-			}
+		      })
+		  }
 	}
   par(mfrow=c(1,1))
 	return(invisible())
