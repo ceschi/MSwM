@@ -690,7 +690,7 @@ setMethod(f="plot",signature=c("MSM.linear","missing"),definition=.MSM.plot)
 		x_labels <- rownames(z)
 		len_out <- min(floor(length(t(z))/10), 11)
 		
-		if (x_labels == NULL){
+		if (length(x_labels) == 0){
     		  apply(as.matrix(1:length(aux)),1,
     		  	function(i){
 	    		    a=layout(matrix(c(1,1,1,2),ncol=1,nrow=4),TRUE)
